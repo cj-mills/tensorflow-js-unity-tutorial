@@ -3,7 +3,7 @@ var plugin = {
    GetExternalJS: function () {
 
       var tfjs_script = document.createElement("script");
-      tfjs_script.src = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js";
+      tfjs_script.src = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.20.0/dist/tf.min.js";
       document.head.appendChild(tfjs_script);
 
       var script = document.createElement("script");
