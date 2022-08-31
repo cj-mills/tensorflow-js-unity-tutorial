@@ -341,11 +341,12 @@ public class ImageClassifierTFJS : MonoBehaviour
         // Initialize the webcam dropdown list
         InitializeDropdown();
 
-        string modelDir = "TFJSModels/imagenet_mobilenet_v2_100_224";
+        //string modelDir = "TFJSModels/imagenet_mobilenet_v2_100_224";
+        string modelDir = "TFJSModels/hagrid-sample-250k-384p-convnext_nano-tfjs";
         string modelName = "model.json";
         string modelPath = $"{Application.streamingAssetsPath}/{modelDir}/{modelName}";
         string backend = "webgl";
-        WebGLPluginJS.InitTFJSModel(modelPath, backend);
+        WebGLPluginJS.InitTFJSModel(modelPath, backend, mean, std_dev);
     }
 
 
