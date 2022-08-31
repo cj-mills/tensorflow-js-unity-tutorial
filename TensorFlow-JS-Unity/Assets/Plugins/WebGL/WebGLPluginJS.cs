@@ -11,7 +11,7 @@ public static class WebGLPluginJS
     public static extern void GetExternalJS();
 
     [DllImport("__Internal")]
-    public static extern void InitTFJSModel(string model_path, string backend);
+    public static extern void InitTFJSModel(string model_path, string backend, float[] mean, float[] std_dev);
 
     [DllImport("__Internal")]
     public static extern int PerformInference(byte[] array, int size, int width, int height);
