@@ -56,8 +56,6 @@ public class ImageClassifierTFJS : MonoBehaviour
     [Header("Data Processing")]
     [Tooltip("The target minimum model input dimensions")]
     public int targetDim = 216;
-    //[Tooltip("The compute shader for GPU processing")]
-    //public ComputeShader processingShader;
     [Tooltip("Asynchronously download input image from the GPU to the CPU.")]
     public bool useAsyncGPUReadback = true;
 
@@ -402,26 +400,6 @@ public class ImageClassifierTFJS : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// Pin memory for the input data and pass a reference to the plugin for inference
-    /// </summary>
-    /// <param name="texture">The input texture</param>
-    /// <returns></returns>
-    //public unsafe int UploadTexture(Texture2D texture)
-    //{
-    //    int classIndex = -1;
-
-    //    //Pin Memory
-    //    fixed (byte* p = texture.GetRawTextureData())
-    //    {
-    //        // Perform inference and get the predicted class index
-    //        classIndex = PerformInference((IntPtr)p);
-    //    }
-
-    //    return classIndex;
-    //}
-
-
     // Update is called once per frame
     void Update()
     {
@@ -482,15 +460,10 @@ public class ImageClassifierTFJS : MonoBehaviour
         inputTextureCPU.Apply();
 
         //byte[] rawData = inputTextureCPU.GetRawTextureData();
-        //bool init = WebGLPluginJS.CheckInit();
-        //Debug.Log("Here");
         int width = inputTextureCPU.width;
         int height = inputTextureCPU.height;
         int size = width * height * 3;
         classIndex = WebGLPluginJS.PerformInference(inputTextureCPU.GetRawTextureData(), size, width, height);
-        //classIndex = WebGLPluginJS.GetPrediction();
-        //Debug.Log($"Class index Unity: {classIndex}");
-        //performInference = false;
         // Release the input texture
         RenderTexture.ReleaseTemporary(inputTextureGPU);
 
