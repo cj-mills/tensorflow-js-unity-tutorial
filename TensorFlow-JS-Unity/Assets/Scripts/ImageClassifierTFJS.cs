@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Linq;
 //using System.IO;
 
+
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -16,20 +17,30 @@ using UnityEditor;
 //{
 //    static Startup()
 //    {
-//        // Get all files named "plugins.xml"
-//        string[] files = Directory.GetFiles("./Assets/", "plugins.xml", SearchOption.AllDirectories);
-//        // Iterate through each found file
-//        foreach (string file in files)
+//        string tfjsModelsDir = "TFJSModels";
+
+//        Debug.Log("Available models");
+
+//        // Get the paths for each model folder
+//        foreach (string dir in System.IO.Directory.GetDirectories($"{Application.streamingAssetsPath}/{tfjsModelsDir}"))
 //        {
-//            // Check if the file is in the "x86_64" folder
-//            if (file.Contains("x86_64"))
+//            string dirStr = dir.Replace("\\", "/");
+//            // Extract the model folder name
+//            string[] splits = dirStr.Split('/');
+//            string modelName = splits[splits.Length - 1];
+//            // Add name to list of model names
+//            //ModelInfo.modelNames.Add(modelName);
+//            Debug.Log($"Model name: {modelName}");
+
+//            // Get the paths for the model.json file for each model
+//            foreach (string file in System.IO.Directory.GetFiles(dirStr))
 //            {
-//                // Define file path for StreamingAssets folder
-//                string targetPath = $"{Application.streamingAssetsPath}/plugins.xml";
-//                // Print the source file path
-//                Debug.Log(file);
-//                // Only copy the file to the StreamingAssets folder if it is not already present
-//                if (!File.Exists(targetPath)) File.Copy(file, targetPath);
+//                if (file.EndsWith("model.json"))
+//                {
+//                    string fileStr = file.Replace("\\", "/");
+//                    Debug.Log($"File path: {fileStr}");
+//                    //modelPaths.Add(fileStr);
+//                }
 //            }
 //        }
 //    }
@@ -84,15 +95,15 @@ public class ImageClassifierTFJS : MonoBehaviour
     public Toggle useWebcamToggle;
     [Tooltip("The dropdown menu that lists available webcam devices")]
     public Dropdown webcamDropdown;
-    [Tooltip("The dropdown menu that lists available ONNX models")]
+    [Tooltip("The dropdown menu that lists available TFJS models")]
     public Dropdown modelDropdown;
-    [Tooltip("The dropdown menu that lists available ONNX devices")]
-    public Dropdown deviceDropdown;
+    [Tooltip("The dropdown menu that lists available TFJS backends")]
+    public Dropdown backendDropdown;
 
-    [Header("ONNX")]
-    [Tooltip("The name of the onnx models folder")]
+    [Header("TFJS")]
+    [Tooltip("The name of the TFJS models folder")]
     public string tfjsModelsDir = "TFJSModels";
-    
+
     // List of available webcam devices
     private WebCamDevice[] webcamDevices;
     // Live video input from a webcam
@@ -123,33 +134,16 @@ public class ImageClassifierTFJS : MonoBehaviour
     // Controls when the frame rate value updates
     private float fpsTimer = 0f;
 
-    // File paths for the available ONNX models
+    // File paths for the available TFJS models
     private List<string> modelPaths = new List<string>();
-    // Names of the available ONNX models
+    // Names of the available TFJS models
     private List<string> modelNames = new List<string>();
-    // Names of the available ONNX devices
-    private List<string> onnxDevices = new List<string>();
+    // Names of the available TFJS backends
+    //private List<string> tfjsBackends = new List<string>();
+    private List<string> tfjsBackends = new List<string> { "webgl", "cpu" };
 
     float[] mean = new float[] { 0.485f, 0.456f, 0.406f };
     float[] std_dev = new float[] { 0.229f, 0.224f, 0.225f };
-
-    // Name of the DLL file
-    //const string dll = "ONNX_Image_Classifier_DLL";
-
-    //[DllImport(dll)]
-    //private static extern int GetDeviceCount();
-
-    //[DllImport(dll)]
-    //private static extern IntPtr GetDeviceName(int index);
-
-    //[DllImport(dll)]
-    //private static extern int LoadModel(string model, int index, int[] inputDims);
-
-    //[DllImport(dll)]
-    //private static extern int PerformInference(IntPtr inputData);
-
-    //private bool performInference = true;
-
 
     /// <summary>
     /// Initialize the selected webcam device
@@ -200,39 +194,6 @@ public class ImageClassifierTFJS : MonoBehaviour
 
 
     /// <summary>
-    /// Get the file paths for available ONNX models
-    /// </summary>
-    //private void GetONNXModels()
-    //{
-    //    Debug.Log("Here #1");
-
-    //    // Get the paths for each model folder
-    //    foreach (string dir in System.IO.Directory.GetDirectories($"{Application.streamingAssetsPath}/{onnxModelsDir}"))
-    //    {
-    //        Debug.Log("Here #2");
-    //        string dirStr = dir.Replace("\\", "/");
-    //        Debug.Log(dirStr);
-    //        // Extract the model folder name
-    //        string[] splits = dirStr.Split('/');
-    //        string modelName = splits[splits.Length - 1];
-    //        // Add name to list of model names
-    //        modelNames.Add(modelName);
-
-    //        // Get the paths for the ONNX file for each model
-    //        foreach (string file in System.IO.Directory.GetFiles(dirStr))
-    //        {
-    //            if (file.EndsWith(".onnx"))
-    //            {
-    //                string fileStr = file.Replace("\\", "/");
-    //                Debug.Log(fileStr);
-    //                modelPaths.Add(fileStr);
-    //            }
-    //        }
-    //    }
-    //}
-
-
-    /// <summary>
     /// Get the names of the available ONNX execution providers
     /// </summary>
     //private void GetONNXExecutionProviders()
@@ -275,13 +236,15 @@ public class ImageClassifierTFJS : MonoBehaviour
         modelDropdown.AddOptions(modelNames);
         // Select the first option in the dropdown
         modelDropdown.SetValueWithoutNotify(0);
+        //Debug.Log($"First Model Name: {ModelInfo.modelNames[0]}");
+
 
         // Remove default dropdown options
-        deviceDropdown.ClearOptions();
+        backendDropdown.ClearOptions();
         // Add ONNX device names to menu
-        deviceDropdown.AddOptions(onnxDevices);
+        backendDropdown.AddOptions(tfjsBackends);
         // Select the first option in the dropdown
-        deviceDropdown.SetValueWithoutNotify(0);
+        backendDropdown.SetValueWithoutNotify(0);
     }
 
 
@@ -333,20 +296,20 @@ public class ImageClassifierTFJS : MonoBehaviour
         // Initialize list of class labels from JSON file
         classes = JsonUtility.FromJson<ClassLabels>(classLabels.text).classes;
 
-        // Get the file paths for available ONNX models
-        //GetONNXModels();
-        // Get the names of available ONNX devices
-        //GetONNXExecutionProviders();
-
         // Initialize the webcam dropdown list
         InitializeDropdown();
 
+        //WebGLPluginJS.GetAvailableBackends();
+
+        string backend = "webgl";
+        WebGLPluginJS.SetTFJSBackend(backend);
+
         //string modelDir = "TFJSModels/imagenet_mobilenet_v2_100_224";
-        string modelDir = "TFJSModels/hagrid-sample-250k-384p-convnext_nano-tfjs";
+        //string modelDir = "TFJSModels/hagrid-sample-250k-384p-convnext_nano-tfjs";
+        string modelDir = "TFJSModels/hagrid-sample-250k-384p-convnext_nano-tfjs-channels-last";
         string modelName = "model.json";
         string modelPath = $"{Application.streamingAssetsPath}/{modelDir}/{modelName}";
-        string backend = "webgl";
-        WebGLPluginJS.InitTFJSModel(modelPath, backend, mean, std_dev);
+        WebGLPluginJS.InitTFJSModel(modelPath, mean, std_dev);
     }
 
 
@@ -551,6 +514,11 @@ public class ImageClassifierTFJS : MonoBehaviour
     public void UpdateWebcamToggle(bool useWebcam)
     {
         this.useWebcam = useWebcam;
+    }
+
+    public void UpdateTFJSBackend()
+    {
+        WebGLPluginJS.SetTFJSBackend(tfjsBackends[backendDropdown.value]);
     }
 
 

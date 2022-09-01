@@ -341,7 +341,7 @@ GameObject:
   - component: {fileID: 96823216}
   - component: {fileID: 96823215}
   m_Layer: 5
-  m_Name: ONNXExecutionProviderDropdown
+  m_Name: TFJSBackendDropdown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -427,8 +427,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1531385795}
-        m_TargetAssemblyTypeName: ImageClassifierOpenVINO, Assembly-CSharp
-        m_MethodName: 
+        m_TargetAssemblyTypeName: ImageClassifierTFJS, Assembly-CSharp
+        m_MethodName: UpdateTFJSBackend
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1063,7 +1063,7 @@ GameObject:
   - component: {fileID: 410430950}
   - component: {fileID: 410430949}
   m_Layer: 5
-  m_Name: ONNXModelText
+  m_Name: TFJSModelText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1122,7 +1122,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'ONNX Model:'
+  m_Text: 'TFJS Model:'
 --- !u!222 &410430950
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1228,7 +1228,7 @@ GameObject:
   - component: {fileID: 538824368}
   - component: {fileID: 538824367}
   m_Layer: 5
-  m_Name: ONNX\ModelDropdown
+  m_Name: TFJSModelDropdown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1484,7 +1484,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f8b2d175939d09e4892af1dc95e26e8d, type: 2}
+  - {fileID: 2100000, guid: 15478c967bdad5948902845b38994361, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2553,7 +2553,7 @@ MonoBehaviour:
   useWebcamToggle: {fileID: 8870819754565200065}
   webcamDropdown: {fileID: 1408103628409930432}
   modelDropdown: {fileID: 538824367}
-  deviceDropdown: {fileID: 96823215}
+  backendDropdown: {fileID: 96823215}
   tfjsModelsDir: TFJSModels
 --- !u!1 &1608524355
 GameObject:
@@ -2756,7 +2756,7 @@ GameObject:
   - component: {fileID: 1881222150}
   - component: {fileID: 1881222149}
   m_Layer: 5
-  m_Name: ONNXDevicelText
+  m_Name: TFJSBackendText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2815,7 +2815,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Execution Provider:'
+  m_Text: 'Inference Backend:'
 --- !u!222 &1881222150
 CanvasRenderer:
   m_ObjectHideFlags: 0
