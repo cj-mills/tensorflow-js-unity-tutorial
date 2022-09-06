@@ -1,50 +1,73 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using System;
 using UnityEngine.UI;
-using System.Runtime.InteropServices;
-using System.Linq;
-//using System.IO;
+using System.IO;
+using UnityEngine.Networking;
 
 
 #if UNITY_EDITOR
 using UnityEditor;
 
-//[InitializeOnLoad]
-//public class Startup
-//{
-//    static Startup()
-//    {
-//        string tfjsModelsDir = "TFJSModels";
+[InitializeOnLoad]
+public class Startup
+{
+    [System.Serializable]
+    class ModelData
+    {
+        public string name;
+        public string path;
 
-//        Debug.Log("Available models");
+        public ModelData(string name, string path)
+        {
+            this.name = name;
+            this.path = path;
+        }
+    }
 
-//        // Get the paths for each model folder
-//        foreach (string dir in System.IO.Directory.GetDirectories($"{Application.streamingAssetsPath}/{tfjsModelsDir}"))
-//        {
-//            string dirStr = dir.Replace("\\", "/");
-//            // Extract the model folder name
-//            string[] splits = dirStr.Split('/');
-//            string modelName = splits[splits.Length - 1];
-//            // Add name to list of model names
-//            //ModelInfo.modelNames.Add(modelName);
-//            Debug.Log($"Model name: {modelName}");
+    [System.Serializable]
+    class ModelList
+    {
+        public List<ModelData> models;
 
-//            // Get the paths for the model.json file for each model
-//            foreach (string file in System.IO.Directory.GetFiles(dirStr))
-//            {
-//                if (file.EndsWith("model.json"))
-//                {
-//                    string fileStr = file.Replace("\\", "/");
-//                    Debug.Log($"File path: {fileStr}");
-//                    //modelPaths.Add(fileStr);
-//                }
-//            }
-//        }
-//    }
-//}
+        public ModelList(List<ModelData> models)
+        {
+            this.models = models;
+        }
+    }
+
+    static Startup()
+    {
+        string tfjsModelsDir = "TFJSModels";
+        List<ModelData> models = new List<ModelData>();
+
+        Debug.Log("Available models");
+        // Get the paths for each model folder
+        foreach (string dir in Directory.GetDirectories($"{Application.streamingAssetsPath}/{tfjsModelsDir}"))
+        {
+            string dirStr = dir.Replace("\\", "/");
+            // Extract the model folder name
+            string[] splits = dirStr.Split('/');
+            string modelName = splits[splits.Length - 1];
+
+            // Get the paths for the model.json file for each model
+            foreach (string file in Directory.GetFiles(dirStr))
+            {
+                if (file.EndsWith("model.json"))
+                {
+                    string fileStr = file.Replace("\\", "/").Replace(Application.streamingAssetsPath, "");
+                    models.Add(new ModelData(modelName, fileStr));
+                }
+            }
+        }
+        ModelList modelList = new ModelList(models);
+        string json = JsonUtility.ToJson(modelList);
+        Debug.Log($"Model List JSON: {json}");
+        using StreamWriter writer = new StreamWriter($"{Application.streamingAssetsPath}/models.json");
+        writer.Write(json);
+    }
+}
 #endif
 
 public class ImageClassifierTFJS : MonoBehaviour
@@ -56,8 +79,6 @@ public class ImageClassifierTFJS : MonoBehaviour
     [Header("Data Processing")]
     [Tooltip("The target minimum model input dimensions")]
     public int targetDim = 216;
-    [Tooltip("Asynchronously download input image from the GPU to the CPU.")]
-    public bool useAsyncGPUReadback = true;
 
     [Header("Output Processing")]
     [Tooltip("A json file containing the class labels")]
@@ -143,6 +164,11 @@ public class ImageClassifierTFJS : MonoBehaviour
     float[] mean = new float[] { 0.485f, 0.456f, 0.406f };
     float[] std_dev = new float[] { 0.229f, 0.224f, 0.225f };
 
+    [System.Serializable]
+    class ModelData { public string name; public string path; }
+    [System.Serializable]
+    class ModelList { public List<ModelData> models; }
+
     /// <summary>
     /// Initialize the selected webcam device
     /// </summary>
@@ -192,24 +218,61 @@ public class ImageClassifierTFJS : MonoBehaviour
 
 
     /// <summary>
-    /// Get the names of the available ONNX execution providers
+    /// 
     /// </summary>
-    //private void GetONNXExecutionProviders()
-    //{
-    //    // Get the number of available ONNX execution providers
-    //    int providerCount = GetProviderCount();
-    //    Debug.Log($"Provider Count: {providerCount}");
+    /// <param name="json"></param>
+    private void GetTFJSModels(string json)
+    {
+        ModelList modelList = JsonUtility.FromJson<ModelList>(json);
+        foreach (ModelData model in modelList.models)
+        {
+            //Debug.Log($"{model.name}: {model.path}");
+            modelNames.Add(model.name);
+            string path = $"{Application.streamingAssetsPath}{model.path}";
+            modelPaths.Add(path);
+        }
+        // Remove default dropdown options
+        modelDropdown.ClearOptions();
+        // Add TFJS model names to menu
+        modelDropdown.AddOptions(modelNames);
+        // Select the first option in the dropdown
+        modelDropdown.SetValueWithoutNotify(0);
+    }
 
-    //    for (int i = 0; i < providerCount; i++)
-    //    {
-    //        string providerName = Marshal.PtrToStringAnsi(GetProviderName(i));
-    //        Debug.Log(providerName);
-    //        providerName = providerName.Replace("ExecutionProvider", "");
-    //        onnxExecutionProviders.Add(providerName);
-    //    }
-    //    onnxExecutionProviders.Reverse();
-    //}
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="uri"></param>
+    /// <returns></returns>
+    IEnumerator GetRequest(string uri)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
+        {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            string[] pages = uri.Split('/');
+            int page = pages.Length - 1;
+
+            switch (webRequest.result)
+            {
+                case UnityWebRequest.Result.ConnectionError:
+                case UnityWebRequest.Result.DataProcessingError:
+                    Debug.LogError(pages[page] + ": Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.ProtocolError:
+                    Debug.LogError(pages[page] + ": HTTP Error: " + webRequest.error);
+                    break;
+                case UnityWebRequest.Result.Success:
+                    Debug.Log(pages[page] + ":\nReceived: " + webRequest.downloadHandler.text);
+
+                    GetTFJSModels(webRequest.downloadHandler.text);
+                    UpdateTFJSModel();
+                    break;
+            }
+        }
+    }
 
 
     /// <summary>
@@ -219,7 +282,7 @@ public class ImageClassifierTFJS : MonoBehaviour
     {
         // Create list of webcam device names
         List<string> webcamNames = new List<string>();
-        foreach(WebCamDevice device in webcamDevices) webcamNames.Add(device.name);
+        foreach (WebCamDevice device in webcamDevices) webcamNames.Add(device.name);
 
         // Remove default dropdown options
         webcamDropdown.ClearOptions();
@@ -228,18 +291,12 @@ public class ImageClassifierTFJS : MonoBehaviour
         // Set the value for the dropdown to the current webcam device
         webcamDropdown.SetValueWithoutNotify(webcamNames.IndexOf(currentWebcam));
 
-        // Remove default dropdown options
-        modelDropdown.ClearOptions();
-        // Add ONNX model names to menu
-        modelDropdown.AddOptions(modelNames);
-        // Select the first option in the dropdown
-        modelDropdown.SetValueWithoutNotify(0);
-        //Debug.Log($"First Model Name: {ModelInfo.modelNames[0]}");
-
+        string modelListPath = $"{Application.streamingAssetsPath}/models.json";
+        StartCoroutine(GetRequest(modelListPath));
 
         // Remove default dropdown options
         backendDropdown.ClearOptions();
-        // Add ONNX device names to menu
+        // Add TFJS backend names to menu
         backendDropdown.AddOptions(tfjsBackends);
         // Select the first option in the dropdown
         backendDropdown.SetValueWithoutNotify(0);
@@ -297,53 +354,8 @@ public class ImageClassifierTFJS : MonoBehaviour
         // Initialize the webcam dropdown list
         InitializeDropdown();
 
-        //WebGLPluginJS.GetAvailableBackends();
 
-        string backend = "webgl";
-        WebGLPluginJS.SetTFJSBackend(backend);
-
-        //string modelDir = "TFJSModels/imagenet_mobilenet_v2_100_224";
-        //string modelDir = "TFJSModels/hagrid-sample-250k-384p-convnext_nano-tfjs";
-        string modelDir = "TFJSModels/hagrid-sample-250k-384p-convnext_nano-tfjs-channels-last";
-        string modelName = "model.json";
-        string modelPath = $"{Application.streamingAssetsPath}/{modelDir}/{modelName}";
-        WebGLPluginJS.InitTFJSModel(modelPath, mean, std_dev);
-    }
-
-
-    /// <summary>
-    /// Process the provided image using the specified function on the GPU
-    /// </summary>
-    /// <param name="image">The target image RenderTexture</param>
-    /// <param name="computeShader">The target ComputerShader</param>
-    /// <param name="functionName">The target ComputeShader function</param>
-    /// <returns></returns>
-    private void ProcessImageGPU(RenderTexture image, ComputeShader computeShader, string functionName)
-    {
-        // Specify the number of threads on the GPU
-        int numthreads = 8;
-        // Get the index for the specified function in the ComputeShader
-        int kernelHandle = computeShader.FindKernel(functionName);
-        // Define a temporary HDR RenderTexture
-        RenderTexture result = new RenderTexture(image.width, image.height, 24, RenderTextureFormat.ARGB32);
-        // Enable random write access
-        result.enableRandomWrite = true;
-        // Create the HDR RenderTexture
-        result.Create();
-
-        // Set the value for the Result variable in the ComputeShader
-        computeShader.SetTexture(kernelHandle, "Result", result);
-        // Set the value for the InputImage variable in the ComputeShader
-        computeShader.SetTexture(kernelHandle, "InputImage", image);
-
-        // Execute the ComputeShader
-        computeShader.Dispatch(kernelHandle, result.width / numthreads, result.height / numthreads, 1);
-
-        // Copy the result into the source RenderTexture
-        Graphics.Blit(result, image);
-
-        // Release RenderTexture
-        result.Release();
+        WebGLPluginJS.SetTFJSBackend(tfjsBackends[backendDropdown.value]);
     }
 
 
@@ -374,29 +386,6 @@ public class ImageClassifierTFJS : MonoBehaviour
         }
 
         return inputDims;
-    }
-
-
-    /// <summary>
-    /// Called once AsyncGPUReadback has been completed
-    /// </summary>
-    /// <param name="request"></param>
-    private void OnCompleteReadback(AsyncGPUReadbackRequest request)
-    {
-        if (request.hasError)
-        {
-            Debug.Log("GPU readback error detected.");
-            return;
-        }
-
-        // Make sure the Texture2D is not null
-        if (inputTextureCPU)
-        {
-            // Fill Texture2D with raw data from the AsyncGPUReadbackRequest
-            inputTextureCPU.LoadRawTextureData(request.GetData<uint>());
-            // Apply changes to Textur2D
-            inputTextureCPU.Apply();
-        }
     }
 
 
@@ -434,16 +423,13 @@ public class ImageClassifierTFJS : MonoBehaviour
 
         // Scale the source image resolution
         Vector2Int inputDims = CalculateInputDims(screenDims, targetDim);
-        if (printDebugMessages) Debug.Log($"Input Dims: {inputDims.x} x {inputDims.y}");
-        
+
         // Initialize the input texture with the calculated input dimensions
         inputTextureGPU = RenderTexture.GetTemporary(inputDims.x, inputDims.y, 24, RenderTextureFormat.ARGB32);
 
         if (!inputTextureCPU || inputTextureCPU.width != inputTextureGPU.width)
         {
             inputTextureCPU = new Texture2D(inputDims.x, inputDims.y, TextureFormat.RGB24, false);
-            // Update the selected ONNX model
-            UpdateONNXModel();
         }
 
         if (printDebugMessages) Debug.Log($"Input Dims: {inputTextureGPU.width}x{inputTextureGPU.height}");
@@ -451,15 +437,11 @@ public class ImageClassifierTFJS : MonoBehaviour
         // Copy the source texture into model input texture
         Graphics.Blit((useWebcam ? webcamTexture : imageTexture), inputTextureGPU);
 
-        // Flip image before sending to DLL
-        //ProcessImageGPU(inputTextureGPU, processingShader, "FlipXAxis");
-
         // Download pixel data from GPU to CPU
         RenderTexture.active = inputTextureGPU;
         inputTextureCPU.ReadPixels(new Rect(0, 0, inputTextureGPU.width, inputTextureGPU.height), 0, 0);
         inputTextureCPU.Apply();
 
-        //byte[] rawData = inputTextureCPU.GetRawTextureData();
         int width = inputTextureCPU.width;
         int height = inputTextureCPU.height;
         int size = width * height * 3;
@@ -468,7 +450,6 @@ public class ImageClassifierTFJS : MonoBehaviour
         RenderTexture.ReleaseTemporary(inputTextureGPU);
 
         // Send reference to inputData to DLL
-        //classIndex = UploadTexture(inputTextureCPU);
         if (printDebugMessages) Debug.Log($"Class Index: {classIndex}");
 
         // Check if index is valid
@@ -489,6 +470,10 @@ public class ImageClassifierTFJS : MonoBehaviour
         this.useWebcam = useWebcam;
     }
 
+
+    /// <summary>
+    /// 
+    /// </summary>
     public void UpdateTFJSBackend()
     {
         WebGLPluginJS.SetTFJSBackend(tfjsBackends[backendDropdown.value]);
@@ -513,36 +498,13 @@ public class ImageClassifierTFJS : MonoBehaviour
 
 
     /// <summary>
-    /// Update the selected ONNX model
+    /// 
     /// </summary>
-    public void UpdateONNXModel()
+    public void UpdateTFJSModel()
     {
-        //// Reset objectInfoArray
-        //objectInfoArray = new Object[0];
-
-        //int[] inputDims = new int[] {
-        //    inputTextureCPU.width,
-        //    inputTextureCPU.height
-        //};
-
-        //Debug.Log($"Source input dims: {inputDims[0]} x {inputDims[1]}");
-
-        //// Load the specified ONNX model
-        //int return_msg = LoadModel(
-        //    modelPaths[modelDropdown.value],
-        //    onnxExecutionProviders[executionProviderDropdown.value],
-        //    inputDims);
-
-        //SetConfidenceThreshold(minConfidence);
-
-        //string[] return_messages = {
-        //    "Using DirectML",
-        //    "Using CPU",
-        //};
-
-        //Debug.Log($"Updated input dims: {inputDims[0]} x {inputDims[1]}");
-        //Debug.Log($"Return message: {return_messages[return_msg]}");
+        WebGLPluginJS.InitTFJSModel(modelPaths[modelDropdown.value], mean, std_dev);
     }
+
 
     // OnGUI is called for rendering and handling GUI events.
     public void OnGUI()
