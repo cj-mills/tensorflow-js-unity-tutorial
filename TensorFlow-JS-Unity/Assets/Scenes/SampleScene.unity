@@ -1314,8 +1314,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1531385795}
-        m_TargetAssemblyTypeName: ImageClassifierOpenVINO, Assembly-CSharp
-        m_MethodName: 
+        m_TargetAssemblyTypeName: ImageClassifierTFJS, Assembly-CSharp
+        m_MethodName: UpdateTFJSModel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2539,7 +2539,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   screen: {fileID: 709389918}
   targetDim: 224
-  useAsyncGPUReadback: 0
+  useAsyncGPUReadback: 1
   classLabels: {fileID: 4900000, guid: 1dbfd7b0d5f4c0a408c24a920cb06852, type: 3}
   printDebugMessages: 0
   useWebcam: 0
