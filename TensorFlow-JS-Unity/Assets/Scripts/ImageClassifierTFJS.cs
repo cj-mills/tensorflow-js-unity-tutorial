@@ -161,7 +161,7 @@ public class ImageClassifierTFJS : MonoBehaviour
     private List<string> modelNames = new List<string>();
     // Names of the available TFJS backends
     //private List<string> tfjsBackends = new List<string>();
-    private List<string> tfjsBackends = new List<string> { "webgl", "cpu" };
+    private List<string> tfjsBackends = new List<string> { "webgl" };
 
 
     // A class for reading in normalization stats from a JSON file
