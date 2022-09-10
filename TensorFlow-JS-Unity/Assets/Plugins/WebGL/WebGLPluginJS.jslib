@@ -9,28 +9,11 @@ var plugin = {
       tfjs_script.src = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.20.0/dist/tf.min.js";
       document.head.appendChild(tfjs_script);
 
-      // Add WASM inference backend
-      // var tfjs_wasm_script = document.createElement("script");
-      // tfjs_wasm_script.src = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js";
-      // document.head.appendChild(tfjs_wasm_script);
-
       // Add custom utility functions
       var script = document.createElement("script");
       script.src = "./StreamingAssets/utils.js";
       document.head.appendChild(script);
    },
-
-   // GetAvailableBackends: function () {
-   //    if (tf.ENV.getBool('HAS_WEBGL')) {
-   //       console.log('WebGL is available.');
-   //    }
-   //    if (typeof tf.ENV.flagRegistry.WASM_HAS_MULTITHREAD_SUPPORT !== 'undefined') {
-   //       console.log('WASM is available');
-   //    }
-   //    else {
-   //       console.log('WASM is not available');
-   //    }
-   // },
 
    // Set the TFJS inference backend
    SetTFJSBackend: function (backend) {
