@@ -2539,8 +2539,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   screen: {fileID: 709389918}
   targetDim: 224
-  useAsyncGPUReadback: 1
-  classLabels: {fileID: 4900000, guid: 1dbfd7b0d5f4c0a408c24a920cb06852, type: 3}
+  classLabels: {fileID: 4900000, guid: 0b90cfa406094104483b2e3ebcdd3831, type: 3}
   printDebugMessages: 0
   useWebcam: 0
   webcamDims: {x: 1280, y: 720}
@@ -2555,6 +2554,11 @@ MonoBehaviour:
   modelDropdown: {fileID: 538824367}
   backendDropdown: {fileID: 96823215}
   tfjsModelsDir: TFJSModels
+  normalizationStatsList:
+  - {fileID: 4900000, guid: 328c7cc5f8fc71c43a18fc5a2a14b5bc, type: 3}
+  - {fileID: 4900000, guid: 5ea6299a0bc3806479628ba0dcc679b0, type: 3}
+  - {fileID: 4900000, guid: 23622ecec383a8d47baaf1b04191527f, type: 3}
+  - {fileID: 4900000, guid: 7ea59e1485ef2b441a5f000b465a9eeb, type: 3}
 --- !u!1 &1608524355
 GameObject:
   m_ObjectHideFlags: 0

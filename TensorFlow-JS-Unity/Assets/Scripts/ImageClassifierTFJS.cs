@@ -122,6 +122,8 @@ public class ImageClassifierTFJS : MonoBehaviour
     [Header("TFJS")]
     [Tooltip("The name of the TFJS models folder")]
     public string tfjsModelsDir = "TFJSModels";
+    [Tooltip("A list json files containing the normalization stats for available models")]
+    public TextAsset[] normalizationStatsList;
 
     // List of available webcam devices
     private WebCamDevice[] webcamDevices;
@@ -161,8 +163,11 @@ public class ImageClassifierTFJS : MonoBehaviour
     //private List<string> tfjsBackends = new List<string>();
     private List<string> tfjsBackends = new List<string> { "webgl", "cpu" };
 
-    float[] mean = new float[] { 0.485f, 0.456f, 0.406f };
-    float[] std_dev = new float[] { 0.229f, 0.224f, 0.225f };
+
+    // A class for reading in normalization stats from a JSON file
+    class NormalizationStats { public float[] mean; public float[] std; }
+    float[] mean = new float[3];
+    float[] std = new float[3];
 
     [System.Serializable]
     class ModelData { public string name; public string path; }
@@ -502,7 +507,34 @@ public class ImageClassifierTFJS : MonoBehaviour
     /// </summary>
     public void UpdateTFJSModel()
     {
-        WebGLPluginJS.InitTFJSModel(modelPaths[modelDropdown.value], mean, std_dev);
+        string modelName = modelNames[modelDropdown.value];
+
+        foreach (TextAsset textAsset in normalizationStatsList)
+        {
+            if (modelName.Contains(textAsset.name.Split("-")[0]))
+            {
+                // Initialize the normalization stats from JSON file
+                mean = JsonUtility.FromJson<NormalizationStats>(textAsset.text).mean;
+                std = JsonUtility.FromJson<NormalizationStats>(textAsset.text).std;
+            }
+        }
+
+        if (mean.Length == 0)
+        {
+            Debug.Log("Unable to find normalization stats");
+            return;
+        }
+        {
+            string mean_str = "";
+            foreach (float val in mean) mean_str += $"{val} ";
+            Debug.Log($"Mean Stats: {mean_str}");
+            string std_str = "";
+            foreach (float val in std) std_str += $"{val} ";
+            Debug.Log($"Std Stats: {std_str}");
+        }
+
+
+        WebGLPluginJS.InitTFJSModel(modelPaths[modelDropdown.value], mean, std);
     }
 
 
