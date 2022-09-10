@@ -10,9 +10,6 @@ public static class WebGLPluginJS
     [DllImport("__Internal")]
     public static extern void GetExternalJS();
 
-    //[DllImport("__Internal")]
-    //public static extern void GetAvailableBackends();
-
     [DllImport("__Internal")]
     public static extern void SetTFJSBackend(string backend);
 
