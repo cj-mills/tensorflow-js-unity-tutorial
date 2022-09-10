@@ -554,7 +554,7 @@ public class ImageClassifierTFJS : MonoBehaviour
 
         // Verify predicted class index is valid
         bool validIndex = classIndex >= 0 && classIndex < classes.Length;
-        string content = $"Predicted Class: {(validIndex ? classes[classIndex] : "Invalid index")}";
+        string content = validIndex ? $"Predicted Class: {classes[classIndex]}" : "Loading Model...";
         if (displayPredictedClass) GUI.Label(slot1, new GUIContent(content), style);
 
         // Update framerate value
