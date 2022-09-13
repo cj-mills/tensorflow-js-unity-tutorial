@@ -7,6 +7,8 @@ async function PerformInferenceAsync(model, float32Data, shape) {
         // Make a prediction.
         return model.predict(input_tensor);
     });
+    // const output = await outputData.array();
+    // console.log(`Output: ${output}`);
     return await outputData.data();
 }
 
