@@ -27,7 +27,7 @@ var plugin = {
    },
 
    // Load a TFJS model
-   InitTFJSModel: async function (model_path, mean, std_dev) {
+   InitTFJSModel: async function (model_path, mean, std_dev, output_data) {
 
       // Convert bytes to the text
       var model_path_str = UTF8ToString(model_path);
@@ -39,49 +39,44 @@ var plugin = {
 
       this.mean = new Float32Array(buffer, mean, 3);
       this.std_dev = new Float32Array(buffer, std_dev, 3);
+
+      this.prediction = new Float32Array(buffer, output_data, 2);
    },
 
    // Perform inference with the provided image data
    PerformInference: function (image_data, size, width, height) {
       if (typeof this.model == 'undefined') {
          console.log("Model not defined yet");
-         return -1;
+         return false;
       }
 
       // Initialize an array with the raw image data
       const uintArray = new Uint8ClampedArray(buffer, image_data, size, width, height);
-      uintArray.reverse();
-
-      // Channels-first order
-      // const [redArray, greenArray, blueArray] = new Array(
-      //    new Array(),
-      //    new Array(),
-      //    new Array());
-      // for (let i = 0; i < uintArray.length; i += 3) {
-      //    redArray.push(((uintArray[i] / 255.0) - this.mean[0]) / this.std_dev[0]);
-      //    greenArray.push(((uintArray[i + 1] / 255.0) - this.mean[1]) / this.std_dev[1]);
-      //    blueArray.push(((uintArray[i + 2] / 255.0) - this.mean[2]) / this.std_dev[2]);
-      // }
-      // const float32Data = Float32Array.from(redArray.concat(greenArray).concat(blueArray));
-      // const shape = [1, 3, height, width];
 
       // Channels-last order
       const [input_array] = new Array(new Array());
-      for (let i = 0; i < uintArray.length; i += 3) {
-         input_array.push(((uintArray[i] / 255.0) - this.mean[0]) / this.std_dev[0]);
-         input_array.push(((uintArray[i + 1] / 255.0) - this.mean[1]) / this.std_dev[1]);
-         input_array.push(((uintArray[i + 2] / 255.0) - this.mean[2]) / this.std_dev[2]);
+
+      for (let row = height - 1; row >= 0; row--) {
+         let slice = uintArray.slice(row * width * 3, (row * width * 3) + (width * 3));
+         for (let col = 0; col < slice.length; col += 3) {
+            input_array.push(((slice[col + 0] / 255.0) - this.mean[0]) / this.std_dev[0]);
+            input_array.push(((slice[col + 1] / 255.0) - this.mean[1]) / this.std_dev[1]);
+            input_array.push(((slice[col + 2] / 255.0) - this.mean[2]) / this.std_dev[2]);
+         }
       }
+
       const float32Data = Float32Array.from(input_array);
       const shape = [1, height, width, 3];
 
       // Pass preprocessed input to the model
       PerformInferenceAsync(this.model, float32Data, shape).then(output => {
-         // var results = softmax(Array.prototype.slice.call(output));
+         let results = softmax(Array.prototype.slice.call(output));
          // Extract the predicted class from the model output
-         this.index = argMax(Array.prototype.slice.call(output));
+         let index = argMax(Array.prototype.slice.call(output));
+         this.prediction[0] = index;
+         this.prediction[1] = results[index];
       })
-      return this.index;
+      return true;
    },
 }
 

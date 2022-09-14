@@ -1,1 +1,1 @@
-{"models":[{"name":"convnext_nano-uint8","path":"/TFJSModels/convnext_nano-uint8/model.json"},{"name":"mobilenetv2_050-uint8","path":"/TFJSModels/mobilenetv2_050-uint8/model.json"},{"name":"resnet18-uint8","path":"/TFJSModels/resnet18-uint8/model.json"}]}
+{"models":[{"name":"convnext_nano-uint8","path":"/TFJSModels/convnext_nano-uint8/model.json"},{"name":"mobilenetv2_050-fp32","path":"/TFJSModels/mobilenetv2_050-fp32/model.json"},{"name":"resnet18-uint8","path":"/TFJSModels/resnet18-uint8/model.json"}]}

@@ -147,8 +147,8 @@ public class ImageClassifierTFJS : MonoBehaviour
     class ClassLabels { public string[] classes; }
     // The ordered list of class names
     private string[] classes;
-    // Stores the predicted class index
-    private int classIndex;
+    // 
+    private bool isInitialized;
 
     // The current frame rate value
     private int fps = 0;
@@ -162,6 +162,9 @@ public class ImageClassifierTFJS : MonoBehaviour
     // Names of the available TFJS backends
     //private List<string> tfjsBackends = new List<string>();
     private List<string> tfjsBackends = new List<string> { "webgl" };
+
+
+    float[] output_data = new float[2];
 
 
     // A class for reading in normalization stats from a JSON file
@@ -359,7 +362,6 @@ public class ImageClassifierTFJS : MonoBehaviour
         // Initialize the webcam dropdown list
         InitializeDropdown();
 
-
         WebGLPluginJS.SetTFJSBackend(tfjsBackends[backendDropdown.value]);
     }
 
@@ -450,16 +452,13 @@ public class ImageClassifierTFJS : MonoBehaviour
         int width = inputTextureCPU.width;
         int height = inputTextureCPU.height;
         int size = width * height * 3;
-        classIndex = WebGLPluginJS.PerformInference(inputTextureCPU.GetRawTextureData(), size, width, height);
+        isInitialized = WebGLPluginJS.PerformInference(inputTextureCPU.GetRawTextureData(), size, width, height);
+
         // Release the input texture
         RenderTexture.ReleaseTemporary(inputTextureGPU);
 
-        // Send reference to inputData to DLL
-        if (printDebugMessages) Debug.Log($"Class Index: {classIndex}");
-
         // Check if index is valid
-        bool validIndex = classIndex >= 0 && classIndex < classes.Length;
-        if (printDebugMessages) Debug.Log(validIndex ? $"Predicted Class: {classes[classIndex]}" : "Invalid index");
+        if (printDebugMessages) Debug.Log(isInitialized ? $"Predicted Class: {classes[(int)output_data[0]]}" : "Not Initialized");
 
         // Release the input texture
         RenderTexture.ReleaseTemporary(inputTextureGPU);
@@ -534,7 +533,7 @@ public class ImageClassifierTFJS : MonoBehaviour
         }
 
 
-        WebGLPluginJS.InitTFJSModel(modelPaths[modelDropdown.value], mean, std);
+        WebGLPluginJS.InitTFJSModel(modelPaths[modelDropdown.value], mean, std, output_data, output_data.Length);
     }
 
 
@@ -553,8 +552,8 @@ public class ImageClassifierTFJS : MonoBehaviour
         Rect slot2 = new Rect(10, style.fontSize * 1.5f, 500, 500);
 
         // Verify predicted class index is valid
-        bool validIndex = classIndex >= 0 && classIndex < classes.Length;
-        string content = validIndex ? $"Predicted Class: {classes[classIndex]}" : "Loading Model...";
+        string labelText = $"{classes[(int)output_data[0]]} {(output_data[1] * 100).ToString("0.##")}%";
+        string content = isInitialized ? $"Predicted Class: {labelText}" : "Loading Model...";
         if (displayPredictedClass) GUI.Label(slot1, new GUIContent(content), style);
 
         // Update framerate value

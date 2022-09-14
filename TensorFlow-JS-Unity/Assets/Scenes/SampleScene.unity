@@ -2546,7 +2546,7 @@ MonoBehaviour:
   webcamFPS: 60
   displayPredictedClass: 1
   displayFPS: 1
-  textColor: {r: 1, g: 0, b: 0, a: 1}
+  textColor: {r: 1, g: 1, b: 0, a: 1}
   fontScale: 50
   fpsRefreshRate: 0.2
   useWebcamToggle: {fileID: 8870819754565200065}
