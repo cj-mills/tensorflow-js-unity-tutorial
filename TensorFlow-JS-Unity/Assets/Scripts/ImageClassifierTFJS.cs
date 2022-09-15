@@ -83,6 +83,9 @@ public class ImageClassifierTFJS : MonoBehaviour
     [Header("Output Processing")]
     [Tooltip("A json file containing the class labels")]
     public TextAsset classLabels;
+    [Tooltip("Minimum confidence score for keeping predictions")]
+    [Range(0, 1f)]
+    public float minConfidence = 0.5f;
 
     [Header("Debugging")]
     [Tooltip("Print debugging messages to the console")]
@@ -502,6 +505,16 @@ public class ImageClassifierTFJS : MonoBehaviour
 
 
     /// <summary>
+    /// Update the minimum confidence score for keeping predictions
+    /// </summary>
+    /// <param name="slider"></param>
+    public void UpdateConfidenceThreshold(Slider slider)
+    {
+        minConfidence = slider.value;
+    }
+
+
+    /// <summary>
     /// 
     /// </summary>
     public void UpdateTFJSModel()
@@ -553,6 +566,7 @@ public class ImageClassifierTFJS : MonoBehaviour
 
         // Verify predicted class index is valid
         string labelText = $"{classes[(int)output_data[0]]} {(output_data[1] * 100).ToString("0.##")}%";
+        if (output_data[1] < minConfidence) labelText = "None";
         string content = isInitialized ? $"Predicted Class: {labelText}" : "Loading Model...";
         if (displayPredictedClass) GUI.Label(slot1, new GUIContent(content), style);
 
