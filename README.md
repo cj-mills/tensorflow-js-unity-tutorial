@@ -1,9 +1,9 @@
 # Fastai → TensorFlow.js → Unity Tutorial 
 
 ## Training Code
-| Jupyter Notebook             | Colab                                                        | Kaggle                                                       |
-| --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [GitHub Repository](https://github.com/cj-mills/tensorflow-js-unity-tutorial/blob/main/notebooks/Fastai-timm-HaGRID-classification-TFJS.ipynb) | [Open In Colab](https://colab.research.google.com/github/cj-mills/tensorflow-js-unity-tutorial/blob/main/notebooks/Fastai-timm-HaGRID-classification-TFJS-Colab.ipynb) | [Open in Kaggle](https://kaggle.com/kernels/welcome?src=https://github.com/cj-mills/tensorflow-js-unity-tutorial/blob/main/notebooks/Fastai-timm-HaGRID-classification-TFJS-Kaggle.ipynb) |
+| Jupyter Notebook                                             | Colab                                                        | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Kaggle&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [GitHub Repository](https://github.com/cj-mills/tensorflow-js-unity-tutorial/blob/main/notebooks/Fastai-timm-HaGRID-classification-TFJS.ipynb) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/cj-mills/tensorflow-js-unity-tutorial/blob/main/notebooks/Fastai-timm-HaGRID-classification-TFJS-Colab.ipynb) | [![Kaggle](https://kaggle.com/static/images/open-in-kaggle.svg)](https://kaggle.com/kernels/welcome?src=https://github.com/cj-mills/tensorflow-js-unity-tutorial/blob/main/notebooks/Fastai-timm-HaGRID-classification-TFJS-Kaggle.ipynb) |
 
 ## Kaggle Datasets
 - [HaGRID Classification 512p no_gesture 150k](https://www.kaggle.com/datasets/innominate817/hagrid-classification-512p-no-gesture-150k) 
