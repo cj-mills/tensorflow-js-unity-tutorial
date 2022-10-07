@@ -1,5 +1,9 @@
 # Fastai → TensorFlow.js → Unity Tutorial 
 
+## Training Code
+| Jupyter Notebook             | Colab                                                        | Kaggle                                                       |
+| --------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [GitHub Repository](https://github.com/cj-mills/tensorflow-js-unity-tutorial/blob/main/notebooks/Fastai-timm-HaGRID-classification-TFJS.ipynb) | [Open In Colab](https://colab.research.google.com/github/cj-mills/tensorflow-js-unity-tutorial/blob/main/notebooks/Fastai-timm-HaGRID-classification-TFJS-Colab.ipynb) | [Open in Kaggle](https://kaggle.com/kernels/welcome?src=https://github.com/cj-mills/tensorflow-js-unity-tutorial/blob/main/notebooks/Fastai-timm-HaGRID-classification-TFJS-Kaggle.ipynb) |
 
 
 ## Tutorial Links
