@@ -53,3 +53,12 @@
 | two_up_inverted         | ![two_up_inverted](./images/two_up_inverted.jpg) |
 </details>
 
+<!-- relocated-posts:start (projected by the relocate verb; never edit by hand) -->
+## Retired posts
+
+The posts that accompanied this repository were retired from [christianjmills.com](https://christianjmills.com) and now live here:
+
+- [Using Fastai and TensorFlow.js for Hand Gesture Recognition in Unity Pt. 1](retired-post/tensorflow-js-unity-tutorial/part-1/README.md) (2022-10-04)
+- [Using Fastai and TensorFlow.js for Hand Gesture Recognition in Unity Pt. 2](retired-post/tensorflow-js-unity-tutorial/part-2/README.md) (2022-10-05)
+- [Using Fastai and TensorFlow.js for Hand Gesture Recognition in Unity Pt. 3](retired-post/tensorflow-js-unity-tutorial/part-3/README.md) (2022-10-06)
+<!-- relocated-posts:end -->
